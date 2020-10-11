@@ -31,6 +31,9 @@ try:
 except ImportError:
     pass
 
+from template_lib.v2.config import update_parser_defaults_from_yaml
+
+
 FORMAT = "[%(asctime)-15s %(filename)s:%(lineno)d %(funcName)s] %(message)s"
 logging.basicConfig(format=FORMAT)
 logger = logging.getLogger(__name__)
@@ -661,6 +664,7 @@ def test_seg(args):
             logger.info("=> no checkpoint found at '{}'".format(args.resume))
 
     out_dir = '{}_{:03d}_{}'.format(args.arch, start_epoch, phase)
+    out_dir = os.path.join(args.tl_outdir, out_dir)
     if len(args.test_suffix) > 0:
         out_dir += '_' + args.test_suffix
     if args.ms:
@@ -723,6 +727,8 @@ def parse_args():
                         help='Turn on multi-scale testing')
     parser.add_argument('--with-gt', action='store_true')
     parser.add_argument('--test-suffix', default='', type=str)
+
+    update_parser_defaults_from_yaml(parser)
     args = parser.parse_args()
 
     assert args.classes > 0
@@ -741,7 +747,8 @@ def main():
     if args.cmd == 'train':
         train_seg(args)
     elif args.cmd == 'test':
-        test_seg(args)
+        with torch.no_grad():
+            test_seg(args)
 
 
 if __name__ == '__main__':
