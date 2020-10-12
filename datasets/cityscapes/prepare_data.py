@@ -84,6 +84,13 @@ labels = [
 ]
 
 
+def trainId2name(trainId):
+    for l in labels:
+        if 0 <= trainId < 255 and trainId == l.trainId:
+            return l.name
+    return 'unkonwn'
+
+
 def label2id(image):
     array = np.array(image)
     out_array = np.empty(array.shape, dtype=array.dtype)
